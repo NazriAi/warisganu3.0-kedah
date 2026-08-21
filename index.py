@@ -1,0 +1,660 @@
+html_content = """<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apps Semakan Kehadiran & Buku Program Waris Ganu 3.0</title>
+    <style>
+        :root {
+            --primary: #1a365d;
+            --secondary: #d4af37; /* Gold color matching the poster */
+            --accent: #3498db;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --success: #27ae60;
+            --warning: #e67e22;
+            --text-main: #333;
+        }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg); 
+            margin: 0; 
+            padding: 15px; 
+            color: var(--text-main); 
+        }
+        .main-container { 
+            max-width: 750px; 
+            margin: auto; 
+            background: transparent;
+        }
+
+        /* Nav Tabs Modern Style */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            padding: 10px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            background: transparent;
+            color: #7f8c8d;
+            transition: all 0.3s ease;
+        }
+        .tab-btn:hover {
+            color: var(--primary);
+            background: #f0f4f8;
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(26, 54, 93, 0.3);
+        }
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Container dalam Tab */
+        .content-box {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        /* === GAYA UNTUK BUKU PROGRAM === */
+        .bp-cover {
+            background: linear-gradient(135deg, var(--primary), #2c3e50);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        .bp-cover::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" stroke="rgba(255,255,255,0.05)" stroke-width="2" fill="none"/></svg>');
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .bp-cover h1 { color: var(--secondary); font-size: 26px; margin: 0 0 10px 0; line-height: 1.3; }
+        .bp-cover h2 { font-size: 18px; margin-bottom: 5px; color: #fdfbf7; }
+        .bp-cover .theme { font-style: italic; font-size: 15px; margin: 15px 0; font-weight: 300; opacity: 0.9; }
+        .bp-cover .details { background: rgba(255,255,255,0.1); display: inline-block; padding: 10px 20px; border-radius: 30px; font-size: 14px; margin-top: 10px; border: 1px solid rgba(212, 175, 55, 0.3); }
+
+        .bp-section {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .bp-title {
+            color: var(--primary);
+            font-size: 18px;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 8px;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .bp-quote {
+            background: #fdfbf7;
+            border-left: 4px solid var(--secondary);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 10px 0;
+            color: #444;
+        }
+        .bp-poem {
+            font-style: italic;
+            text-align: center;
+            background: #f0f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            color: var(--primary);
+        }
+        .bp-table-wrapper { overflow-x: auto; }
+        .bp-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .bp-table th, .bp-table td {
+            padding: 12px;
+            border: 1px solid #e1e8ed;
+            text-align: left;
+        }
+        .bp-table th {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+        .bp-table tr:nth-child(even) { background: #f9fbfd; }
+        
+        ul.obj-list { padding-left: 20px; line-height: 1.6; font-size: 14px; }
+        ul.obj-list li { margin-bottom: 8px; }
+
+        /* === GAYA UNTUK SEMAKAN KEHADIRAN (Asal) === */
+        .app-title { text-align: center; color: var(--primary); margin-top: 0; margin-bottom: 25px; font-size: 20px; }
+        .filters { display: flex; flex-direction: column; gap: 15px; margin-bottom: 15px; }
+        input[type="text"], select { width: 100%; padding: 12px 15px; border: 2px solid #e0e6ed; border-radius: 8px; font-size: 15px; box-sizing: border-box; background-color: #fafbfc; transition: border-color 0.3s ease; }
+        input[type="text"]:focus, select:focus { outline: none; border-color: var(--accent); }
+        
+        .card { background: #ffffff; border: 1px solid #e1e8ed; border-left: 5px solid var(--accent); border-radius: 8px; padding: 15px 20px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .info { display: flex; flex-direction: column; gap: 5px; flex-grow: 1; }
+        .name { font-size: 17px; font-weight: bold; color: var(--primary); padding: 2px 5px; border-radius: 4px; margin-left: -5px; }
+        .ahli-box { background: #f9fbfd; border: 1px solid #e1e8ed; padding: 15px; border-radius: 8px; font-size: 14px; color: #495057; line-height: 1.6; }
+        .sub-section { border-bottom: 1px dashed #d6eaf8; padding-bottom: 10px; }
+        .sub-section:last-child { border-bottom: none; padding-bottom: 0; }
+        .editable-active { background-color: #fffde7; border: 1px dashed #f1c40f !important; outline: none; padding: 5px; }
+        
+        .badges { display: flex; flex-wrap: wrap; gap: 8px; }
+        .jalur-badge { font-size: 12px; color: #fff; background-color: var(--primary); padding: 4px 10px; border-radius: 12px; }
+        .bilangan-badge { font-size: 12px; color: #fff; background-color: var(--warning); padding: 4px 10px; border-radius: 12px; font-weight: bold; }
+        .cat-badges { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+        .cat-badge { font-size: 11px; color: var(--primary); background-color: #eaf2f8; padding: 3px 8px; border-radius: 8px; border: 1px solid #d6eaf8; }
+        
+        .card-actions { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; border-top: 1px dashed #e1e8ed; padding-top: 10px; }
+        .btn-action { padding: 8px 12px; border: none; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; color: white; transition: opacity 0.2s; }
+        .btn-action:hover { opacity: 0.8; }
+        .btn-edit { background-color: #f39c12; }
+        .btn-sah { background-color: var(--success); }
+        .btn-sah:disabled { background-color: #95a5a6; cursor: not-allowed; }
+
+        .no-result { text-align: center; color: #e74c3c; font-weight: bold; display: none; padding: 20px; background: #fdf3f2; border-radius: 8px; }
+        .stats { text-align: center; font-size: 14px; color: var(--primary); margin-bottom: 15px; background: #eaf2f8; padding: 15px; border-radius: 8px; line-height: 1.6; border: 1px solid #d6eaf8; display: none; }
+        .stats .main-stats { font-size: 16px; font-weight: bold; margin-bottom: 10px; }
+        .stats .main-stats span { color: var(--accent); }
+        .stats .breakdown { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; font-size: 12px; }
+        .stats .breakdown-item { background: white; padding: 5px 10px; border-radius: 20px; border: 1px solid #bdc3c7; font-weight: 500; }
+        .notice { background: #d4edda; color: #155724; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 15px; text-align: center; border: 1px solid #c3e6cb; font-weight: bold;}
+        .loading { text-align: center; padding: 30px; font-size: 16px; color: var(--accent); font-weight: bold; }
+        .error-box { color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 14px; }
+        #debugInfo { text-align: center; font-size: 12px; color: #7f8c8d; margin-bottom: 20px; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    
+    <!-- Tab Navigation -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('semakan', this)">📱 Semakan Kehadiran</button>
+        <button class="tab-btn" onclick="switchTab('buku', this)">📖 Buku Program</button>
+    </div>
+
+    <!-- TAB 1: APLIKASI SEMAKAN KEHADIRAN -->
+    <div id="semakan" class="tab-content active">
+        <div class="content-box">
+            <h2 class="app-title">Semakan Nama Ahli Keluarga HJMWGK 3.0</h2>
+            <div class="notice">Sistem Bersepadu: Sebarang perubahan maklumat akan disimpan terus ke dalam Pengkalan Data.</div>
+            
+            <div class="filters">
+                <select id="jalurSelect" onchange="filterData()">
+                    <option value="all">-- Semua Jalur Keturunan --</option>
+                </select>
+                <input type="text" id="searchInput" onkeyup="filterData()" placeholder="🔍 Cari nama ketua / ahli keluarga...">
+            </div>
+            
+            <div id="debugInfo">Menunggu sambungan ke pangkalan data...</div>
+
+            <div class="stats" id="resultStats"></div>
+            <div id="noResult" class="no-result">Tiada rekod dijumpai.</div>
+            <div id="listContainer">
+                <div class="loading">Memuat turun data... ⏳</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: BUKU PROGRAM MODEN -->
+    <div id="buku" class="tab-content">
+        <div class="content-box" style="background: transparent; padding: 0; box-shadow: none;">
+            
+            <!-- Muka Depan Buku Program -->
+            <div class="bp-cover">
+                <h2>BUKU PROGRAM RASMI</h2>
+                <h1>HIMPUNAN JEJAK MESRA<br>WARIS GANU KITE</h1>
+                <h2>Kali Ke-3 (HJMWGK 3)</h2>
+                <div class="theme">"Menyemai Muafakat, Menyantuni Generasi"</div>
+                <div class="details">
+                    📅 28 & 29 Ogos 2026<br>
+                    📍 Dewan UniSHAMS, Kuala Ketil, Kedah
+                </div>
+            </div>
+
+            <!-- Objektif Program -->
+            <div class="bp-section">
+                <h3 class="bp-title">🎯 Objektif Program</h3>
+                <ul class="obj-list">
+                    <li>Mengukuhkan ukhuwah antara waris dari seluruh pelusuk tanahair.</li>
+                    <li>Memberi ruang interaksi dan mengenali generasi baharu dalam keluarga besar Waris Ganu Kite.</li>
+                    <li>Mewujudkan suasana kekeluargaan yang harmoni melalui aktiviti santai dan menghiburkan.</li>
+                    <li>Menyemai semangat muafakat dan nilai kekitaan dalam kalangan waris.</li>
+                </ul>
+            </div>
+
+            <!-- Maksud di sebalik Poster -->
+            <div class="bp-section">
+                <h3 class="bp-title">🖼️ Maksud Di Sebalik Poster HJMWGK 3</h3>
+                <p style="font-size: 14px; line-height: 1.6; text-align: justify;">
+                    Reka bentuk poster membawa simbolisme yang mendalam. Tujuh siluet yang berdiri megah melambangkan tujuh adik-beradik generasi pertama, disusun mengikut turutan asal kelahiran sebagai penghormatan kepada salasilah keluarga. Di belakang mereka terbentang panorama Masjid Zahir, mercu tanda kebanggaan Kedah, manakala wau Terengganu di angkasa melambangkan asal-usul Waris Ganu Kite.
+                </p>
+                <div class="bp-quote" style="text-align: center; border-left:none; border-top: 3px solid var(--secondary); border-bottom: 3px solid var(--secondary); font-weight: bold;">
+                    #CaknaWarisGanu<br>
+                    <span style="font-size: 12px; font-weight: normal;">Cakna • Hormat • Bersama</span>
+                </div>
+            </div>
+
+            <!-- Teks Ucapan Penaung -->
+            <div class="bp-section">
+                <h3 class="bp-title">🎙️ Teks Ucapan Penaung WGK</h3>
+                <div class="bp-quote">
+                    "Alhamdulillah, bersyukur kita ke hadrat Allah S.W.T kerana dengan limpah kurnia dan inayah-Nya, kita dapat berhimpun sekali lagi. Himpunan ini bukanlah sekadar satu acara pertemuan biasa. Ia adalah satu platform kesinambungan kasih sayang antara generasi. Inilah masanya untuk generasi muda mengenali susur galur keturunan mereka."
+                </div>
+                <div class="bp-poem">
+                    Kalau nak makan nasi, Tunggu padi masak,<br>
+                    Bila padi masak, Tanya Tok Ngah kedah.<br><br>
+                    Selamat datang ke negeri Kedah,<br>
+                    Tanah subur jelapang padi,<br>
+                    Menjejak waris kerana Allah,<br>
+                    Pahala besar murah rezeki.<br>
+                    (Pesan tok ki kita)
+                </div>
+                <div style="text-align: right; font-size: 14px; font-weight: bold;">
+                    - MOHAMED@EMBONG BIN AWANG
+                </div>
+            </div>
+
+            <!-- Teks Ucapan Pengerusi -->
+            <div class="bp-section">
+                <h3 class="bp-title">🎙️ Teks Ucapan Pengerusi Pelaksana</h3>
+                <div class="bp-quote">
+                    "Cabaran untuk menghimpunkan ratusan ahli keluarga bukanlah suatu tugas yang mudah. Namun, berkat kesepakatan dan komitmen jitu ahli jawatankuasa semuanya telah memberikan dedikasi yang luar biasa. Manfaatkanlah hari ini untuk bertegur sapa, berkenal-kenalan dan mencipta memori indah bersama."
+                </div>
+                <div style="text-align: right; font-size: 14px; font-weight: bold;">
+                    - Ir. HAJI MAT ZIN BIN HUSSAIN
+                </div>
+            </div>
+
+            <!-- Atur Cara Majlis -->
+            <div class="bp-section">
+                <h3 class="bp-title">⏰ Atur Cara Majlis</h3>
+                
+                <h4 style="color: var(--primary); margin-bottom: 5px;">HARI PERTAMA: Jumaat, 28 Ogos 2026</h4>
+                <div class="bp-table-wrapper">
+                    <table class="bp-table">
+                        <tr>
+                            <th width="25%">Masa</th>
+                            <th width="35%">Tempat</th>
+                            <th width="40%">Acara</th>
+                        </tr>
+                        <tr>
+                            <td>4:00 - 5:00 ptg</td>
+                            <td>Tanah Perkuburan KBE</td>
+                            <td>Berkumpul & tahlil ringkas, Ziarah kubur Waris Ganu Kite</td>
+                        </tr>
+                        <tr>
+                            <td>5:15 - 6:00 ptg</td>
+                            <td>Rumah Pn. Rusanini (Kak Long)</td>
+                            <td>Solat Asar, Minum petang</td>
+                        </tr>
+                        <tr>
+                            <td>6:00 ptg</td>
+                            <td>Penginapan masing-masing</td>
+                            <td>Aktiviti bebas</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h4 style="color: var(--primary); margin-bottom: 5px; margin-top: 20px;">HARI KEDUA: Sabtu, 29 Ogos 2026</h4>
+                <div class="bp-table-wrapper">
+                    <table class="bp-table">
+                        <tr><th width="20%">Masa</th><th>Acara</th></tr>
+                        <tr><td>7.30 - 8.45 pg</td><td>Pendaftaran dan Sarapan</td></tr>
+                        <tr><td>8.45 pagi</td><td>Bacaan Doa</td></tr>
+                        <tr><td>8.50 pagi</td><td>Ucapan Alu-aluan Pengerusi J/K Pelaksana & Ucapan Penasihat JIWK</td></tr>
+                        <tr><td>9.15 pagi</td><td>Pengenalan Jalur 2</td></tr>
+                        <tr><td>9.30 pagi</td><td>
+                            <ul style="margin:0; padding-left:15px; font-size:13px;">
+                                <li>Persembahan 1 (Selawat)</li>
+                                <li>Pengenalan Jalur 1, 3 & 4</li>
+                                <li>Persembahan 2 (Burdah)</li>
+                                <li>Cabutan Bertuah</li>
+                                <li>Pengenalan Jalur 5, 6 & 7</li>
+                                <li>Persembahan 3 (Nasyid)</li>
+                                <li>Penyampaian Hadiah</li>
+                            </ul>
+                        </td></tr>
+                        <tr><td>11.00 pagi</td><td>Sukaneka</td></tr>
+                        <tr><td>12.30 tghari</td><td>Sesi Bergambar, Nyanyian Lagu Perpisahan, Makan Tengahari, Salam Ukhuwah</td></tr>
+                        <tr><td>2.30 petang</td><td>Bersurai</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Jawatankuasa Pelaksana -->
+            <div class="bp-section">
+                <h3 class="bp-title">👥 Senarai Jawatankuasa Pelaksana</h3>
+                <div class="bp-table-wrapper">
+                    <table class="bp-table">
+                        <tr><td><b>Penaung</b></td><td>Mohamed@Embong bin Awang</td></tr>
+                        <tr><td><b>Penasihat</b></td><td>Dato' Ir. Muda bin Mohamed</td></tr>
+                        <tr><td><b>Pengerusi</b></td><td>Ir. Mat Zain Bin Hussain</td></tr>
+                        <tr><td><b>Timbalan Pengerusi</b></td><td>Rusaini Binti Idris / Mohd Zahid Bin Saman</td></tr>
+                        <tr><td><b>Setiausaha</b></td><td>Md Daud Bin Kasim</td></tr>
+                        <tr><td><b>Bendahari</b></td><td>Ir.Ts.Mohd Nazri Bin Mat Jarid</td></tr>
+                        <tr><td><b>Pendaftaran & Sambutan</b></td><td>Siti Zuriyati Binti Yahaya</td></tr>
+                        <tr><td><b>Logistik & Dewan</b></td><td>Ali Akbar Bin Kasim</td></tr>
+                        <tr><td><b>Jamuan</b></td><td>(Zulshaidam B. Md Razali) Adam</td></tr>
+                        <tr><td><b>Pengisian Program</b></td><td>Rafizah Bt Abd. Razak / Rosvadah Binti Abd. Razak</td></tr>
+                        <tr><td><b>Cenderamata & Hadiah</b></td><td>Mohd Firdaus Kasim / Khairunnisa Ibrahim / Noraini Alias</td></tr>
+                        <tr><td><b>Dokumentasi & Publisiti</b></td><td>Rizuan Razak</td></tr>
+                        <tr><td><b>Keselamatan & Kesihatan</b></td><td>Mohd Fauzi B. Abdullah</td></tr>
+                        <tr><td><b>Kerohanian & Juruacara</b></td><td>Us Aminudin B Alias</td></tr>
+                        <tr><td><b>Tajaan dan Ekonomi</b></td><td>Ida Royaini / Rajimaton Binti Kasim</td></tr>
+                        <tr><td><b>Sukaneka</b></td><td>Rushila binti Razak / Mizan Izzati binti Mat Zin / Siti Zakiyah binti Yahaya</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Penghargaan -->
+            <div class="bp-section" style="text-align: center; background: #fdfbf7;">
+                <h3 class="bp-title" style="justify-content: center; border-bottom: none; margin-bottom: 0;">💐 Penghargaan</h3>
+                <p style="font-size: 14px; line-height: 1.6;">
+                    Sekalung penghargaan dan ucapan terima kasih diucapkan kepada Penaung WGK, Barisan Jawatankuasa Pelaksana HJMWGK 3, para penyumbang budiman, serta seluruh ahli keluarga Waris Ganu Kite yang telah menjayakan dan hadir memeriahkan himpunan pada kali ini.
+                </p>
+                <h4 style="color: var(--secondary); font-style: italic; font-size: 18px;">"Sehati Sejiwa, Selamanya Keluarga"</h4>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // FUNGSI TUKAR TAB
+    function switchTab(tabId, btnElement) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        // Remove active class from buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Show selected tab & highlight button
+        document.getElementById(tabId).classList.add('active');
+        btnElement.classList.add('active');
+    }
+
+    // ==========================================
+    // LOGIK SISTEM PENGANGKALAN DATA (KEKAL ASAL)
+    // ==========================================
+    let globalData = [];
+    
+    const listContainer = document.getElementById('listContainer');
+    const noResult = document.getElementById('noResult');
+    const jalurSelect = document.getElementById('jalurSelect');
+    const resultStats = document.getElementById('resultStats');
+    const debugInfo = document.getElementById('debugInfo');
+
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzV5GNnAi1OyRkeyzBlEnWMTNiZnks9IPMLS1gjTNJrj2rJ3uck7w1uw-_rlK4FV282/exec'; 
+
+    function handleApiResponse(data) {
+        if (data.status === 'error') {
+            listContainer.innerHTML = `<div class="error-box"><strong>Ralat:</strong><br>${data.message}</div>`;
+            debugInfo.innerHTML = "";
+            return;
+        }
+        
+        globalData = data.data; 
+        debugInfo.innerHTML = `Sistem berjaya memuat turun <b>${data.totalData} keluarga</b>.`;
+        
+        setupDropdown();
+        renderList(globalData);
+    }
+
+    loadData();
+
+    function loadData() {
+        const scriptTag = document.createElement('script');
+        scriptTag.src = `${API_URL}?callback=handleApiResponse&_=${new Date().getTime()}`;
+        scriptTag.onerror = () => {
+            listContainer.innerHTML = `<div class="error-box"><strong> Connection Pengkalan Data Gagal..Sila Refresh/Reload Apps Ini</strong></div>`;
+            debugInfo.innerHTML = "";
+        };
+        document.body.appendChild(scriptTag);
+    }
+
+    function setupDropdown() {
+        jalurSelect.innerHTML = '<option value="all">-- Semua Jalur Keturunan --</option>';
+        const uniqueJalur = [...new Set(globalData.map(item => item.jalur))].filter(Boolean).sort();
+        uniqueJalur.forEach(j => {
+            const option = document.createElement('option');
+            option.value = j; 
+            option.textContent = j; 
+            jalurSelect.appendChild(option);
+        });
+    }
+
+    function renderList(items) {
+        listContainer.innerHTML = '';
+        
+        if (items.length === 0) {
+            noResult.style.display = 'block'; 
+            resultStats.style.display = 'none';
+            return;
+        }
+
+        noResult.style.display = 'none'; 
+        resultStats.style.display = 'block';
+
+        const totalKeluarga = items.length;
+        const totalAhli = items.reduce((sum, item) => sum + (parseInt(item.bilangan) || 0), 0);
+        const sumDewasa = items.reduce((sum, item) => sum + (parseInt(item.dewasa) || 0), 0);
+        const sumRemaja = items.reduce((sum, item) => sum + (parseInt(item.remaja) || 0), 0);
+        const sumKanak = items.reduce((sum, item) => sum + (parseInt(item.kanak) || 0), 0);
+        const sumBayi = items.reduce((sum, item) => sum + (parseInt(item.bayi) || 0), 0);
+        
+        resultStats.innerHTML = `
+            <div class="main-stats">Jumlah Carian Semasa: <span>${totalKeluarga} Keluarga</span> | <span>${totalAhli} Orang Hadir</span></div>
+            <div class="breakdown">
+                <div class="breakdown-item">🧑 Dewasa: <b>${sumDewasa}</b></div>
+                <div class="breakdown-item">👦 Remaja: <b>${sumRemaja}</b></div>
+                <div class="breakdown-item">👧 Kanak-kanak: <b>${sumKanak}</b></div>
+                <div class="breakdown-item">👶 Bayi: <b>${sumBayi}</b></div>
+            </div>
+        `;
+        
+        items.forEach(item => {
+            let catHtml = '';
+            if(parseInt(item.dewasa) > 0) catHtml += `<span class="cat-badge">🧑 Dewasa: ${item.dewasa}</span>`;
+            if(parseInt(item.remaja) > 0) catHtml += `<span class="cat-badge">👦 Remaja: ${item.remaja}</span>`;
+            if(parseInt(item.kanak) > 0) catHtml += `<span class="cat-badge">👧 Kanak-kanak: ${item.kanak}</span>`;
+            if(parseInt(item.bayi) > 0) catHtml += `<span class="cat-badge">👶 Bayi: ${item.bayi}</span>`;
+
+            const isDisahkan = item.status && item.status.toString().toLowerCase().includes('telah disahkan');
+            let btnSahHtml = '';
+            if (isDisahkan) {
+                btnSahHtml = `<button class="btn-action" style="background-color: #95a5a6; cursor: not-allowed;" disabled>✔️ Telah Disahkan</button>`;
+            } else {
+                btnSahHtml = `<button class="btn-action btn-sah" onclick="sahkanKehadiran(this, ${item.rowNumber})">✅ Sila Sahkan</button>`;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.dataset.rownumber = item.rowNumber; 
+            
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="info">
+                        <div class="name" contenteditable="false">${item.ketua || 'Tiada Nama'}</div>
+                        <div class="badges">
+                            <span class="jalur-badge">${item.jalur || 'Tiada Jalur'}</span>
+                            <span class="bilangan-badge">👨‍👩‍👧‍👦 ${item.bilangan || 0} Hadir</span>
+                        </div>
+                        <div class="cat-badges">${catHtml}</div>
+                    </div>
+                </div>
+                <div class="ahli-box">
+                    <div class="sub-section">
+                        <strong style="color:var(--primary); font-size:13px;">👨👩 Senarai Dewasa:</strong><br>
+                        <div class="edit-dewasa" contenteditable="false">${item.namaDewasa ? item.namaDewasa.replace(/\n/g, '<br>') : '<i>Tiada maklumat</i>'}</div>
+                    </div>
+                    <div class="sub-section" style="margin-top: 8px;">
+                        <strong style="color:var(--primary); font-size:13px;">👦👧👶 Senarai Remaja/Kanak-Kanak/Bayi:</strong><br>
+                        <div class="edit-remaja" contenteditable="false">${item.namaRemaja ? item.namaRemaja.replace(/\n/g, '<br>') : '<i>Tiada maklumat</i>'}</div>
+                    </div>
+                </div>
+                
+                <div class="card-actions">
+                    ${btnSahHtml}
+                    <button class="btn-action btn-edit" onclick="editDanSimpan(this, ${item.rowNumber})">✏️ Kemaskini</button>
+                </div>
+            `;
+            listContainer.appendChild(card);
+        });
+    }
+
+    function filterData() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const jalur = jalurSelect.value;
+        
+        const filtered = globalData.filter(item => {
+            const ketuaName = (item.ketua || '').toString().toLowerCase();
+            const ahliNameDewasa = (item.namaDewasa || '').toString().toLowerCase();
+            const ahliNameRemaja = (item.namaRemaja || '').toString().toLowerCase();
+            
+            const matchSearch = ketuaName.includes(search) || ahliNameDewasa.includes(search) || ahliNameRemaja.includes(search);
+            const matchJalur = (jalur === 'all' || item.jalur === jalur);
+            
+            return matchSearch && matchJalur;
+        });
+        renderList(filtered);
+    }
+
+    function hantarKeServer(rowNum, ketuaVal, dewasaVal, remajaVal, btnElement) {
+        btnElement.innerText = "⏳ Menyimpan...";
+        btnElement.disabled = true;
+
+        const encodedKetua = encodeURIComponent(ketuaVal);
+        const encodedDewasa = encodeURIComponent(dewasaVal);
+        const encodedRemaja = encodeURIComponent(remajaVal);
+
+        const callbackName = 'updateCallback_' + Math.floor(Math.random() * 100000);
+        
+        window[callbackName] = function(res) {
+            delete window[callbackName];
+            if (res.status === 'success') {
+                alert("Berjaya dikemaskini dan disimpan ke Pengkalan Data!");
+                location.reload(); 
+            } else {
+                alert("Ralat semasa menyimpan: " + res.message);
+                btnElement.innerText = "Cuba Semula";
+                btnElement.disabled = false;
+            }
+        };
+
+        const updateScript = document.createElement('script');
+        updateScript.src = `${API_URL}?action=update&row=${rowNum}&ketua=${encodedKetua}&namaDewasa=${encodedDewasa}&namaRemaja=${encodedRemaja}&callback=${callbackName}`;
+        document.body.appendChild(updateScript);
+    }
+
+    function editDanSimpan(btn, rowNum) {
+        let card = btn.closest('.card');
+        let nameField = card.querySelector('.name');
+        let dewasaField = card.querySelector('.edit-dewasa');
+        let remajaField = card.querySelector('.edit-remaja');
+
+        if(nameField.isContentEditable) {
+            nameField.contentEditable = "false";
+            dewasaField.contentEditable = "false";
+            remajaField.contentEditable = "false";
+            
+            nameField.classList.remove('editable-active');
+            dewasaField.classList.remove('editable-active');
+            remajaField.classList.remove('editable-active');
+            
+            let ketuaVal = nameField.innerText.trim();
+            let dewasaVal = dewasaField.innerHTML.replace(/<br\s*[\/]?>/gi, '\n').trim();
+            let remajaVal = remajaField.innerHTML.replace(/<br\s*[\/]?>/gi, '\n').trim();
+
+            hantarKeServer(rowNum, ketuaVal, dewasaVal, remajaVal, btn);
+        } else {
+            nameField.contentEditable = "true";
+            dewasaField.contentEditable = "true";
+            remajaField.contentEditable = "true";
+            
+            nameField.classList.add('editable-active');
+            dewasaField.classList.add('editable-active');
+            remajaField.classList.add('editable-active');
+            
+            btn.innerHTML = "💾 Simpan";
+            btn.style.backgroundColor = "#27ae60";
+            nameField.focus();
+            alert("Mod Edit diaktifkan. Selepas siap, klik 'Simpan'.");
+        }
+    }
+
+    function sahkanKehadiran(btnElement, rowNum) {
+        if (!confirm("Adakah anda pasti ingin mengesahkan kehadiran keluarga ini?")) {
+            return;
+        }
+
+        btnElement.innerText = "⏳ Mengesahkan...";
+        btnElement.disabled = true;
+
+        const callbackName = 'sahCallback_' + Math.floor(Math.random() * 100000);
+        
+        window[callbackName] = function(res) {
+            delete window[callbackName];
+            if (res.status === 'success') {
+                btnElement.innerText = "✔️ Telah Disahkan";
+                btnElement.style.backgroundColor = "#95a5a6"; 
+                btnElement.style.cursor = "not-allowed";
+                alert("Pengesahan Kehadiran Berjaya Direkodkan!");
+            } else {
+                alert("Ralat pengesahan: " + res.message);
+                btnElement.innerText = "✅ Sila Sahkan";
+                btnElement.disabled = false;
+            }
+        };
+
+        const updateScript = document.createElement('script');
+        updateScript.src = `${API_URL}?action=sah&row=${rowNum}&callback=${callbackName}`;
+        document.body.appendChild(updateScript);
+    }
+</script>
+</body>
+</html>"""
+
+with open("landing_page_wgk.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+    
+print("File generated successfully.")
